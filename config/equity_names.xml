@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <database>
+        <url>https://xsujstzsbguabmmfdoww.supabase.co</url>
+        <api_key>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzdWpzdHpzYmd1YWJtbWZkb3d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgyODg5MzEsImV4cCI6MjA0Mzg2NDkzMX0.yl_1pRMfQtCcXASs9KVt2snmHkiamGXML24VnLeXKaI</api_key>
+        <bucket>equity_data_bucket</bucket>
+    </database>
+    <local_csv_path>/home/kedar/securities_project/src/EQUITY_L.csv</local_csv_path>
+
+    <table_config>
+        <name>User</name>
+        <fields>
+            <field name="SYMBOL" type="varchar" primary_key="true" />
+            <field name="NAME OF COMPANY" type="varchar" />
+            <field name="SERIES" type="varchar" />
+            <field name="DATE OF LISTING" type="date" />
+            <field name="PAID UP VALUE" type="float8" />
+            <field name="MARKET LOT" type="int8" />
+            <field name="ISIN NUMBER" type="varchar" primary_key="true" />
+            <field name="FACE VALUE" type="int8" />
+        </fields>
+    </table_config>
+
+
+</configuration>
