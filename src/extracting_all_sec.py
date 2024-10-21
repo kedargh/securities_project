@@ -3,11 +3,9 @@ from supabase import create_client, Client
 import pandas as pd
 import requests
 import xml.etree.ElementTree as ET
-#from airflow import DAG
-# from airflow.operators.python_operator import PythonOperator
-# from datetime import datetime, timedelta
-xml_file_path = "/home/kedar/securities_project/config/equity_names.xml"
 
+xml_file_path_1 = "/home/kedar/securities_project/config/equity_names.xml"
+#xml_file_path_2 = 
 def parse_xml_config_and_create_table(xml_file_path):
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
@@ -27,30 +25,27 @@ def parse_xml_config_and_create_table(xml_file_path):
     print(fields)
     supabase: Client = create_client(db_url, api_key)
     print("CLIENT SUCCESSFULLY CREATED")
-    create_table_sql = f"CREATE TABLE IF NOT EXISTS {table_name}"
+
+    create_table_sql = f"CREATE TABLE IF NOT EXISTS {table_name} ("
     for field_name , field_type in fields:
-        create_table_sql += f"{field_name} {field_type} , \n"
+        if " " in field_name:
+            field_name = f"\"{field_name}\""
+        create_table_sql += f"    {field_name} {field_type},\n"
     create_table_sql = create_table_sql.rstrip(',\n') + "\n);"  
     print(create_table_sql)
+    try:
+        response = supabase.rpc("pg_execute", {"query": create_table_sql}).execute()
+        if response.status_code == 200:
+            print("TABLE CONSTRUCTION DONE")
+        else:
+            print(f"Error: {response.text}")
+    except Exception as e:
+        print(f"Failed to create table: {e}")
+
+    
     return db_url, api_key, local_csv_path, table_name, fields
 
 #-------------------------------------------------------------------------------------------
-
-# def create_supabase_table():
-#     #db_url,api_key,local_csv_path,table_name,fields = parse_xml_config_and_create_table("/home/kedar/securities_project/config/equity_names.xml")
-#     supabase: Client = create_client(db_url, api_key)
-#     print("CLIENT SUCCESSFULLY CREATED")
-#     create_table_sql = f"CREATE TABLE IF NOT EXISTS {table_name}"
-#     for field_name , field_type in fields:
-#         create_table_sql += f"{field_name} {field_type} , \n"
-#     create_table_sql = create_table_sql.rstrip(',\n') + "\n);"  
-#     print(create_table_sql)
-    # try:
-    #     response = supabase.rpc("pg_execute", {"query": create_function_sql}).execute()
-    #     if response.status_code == 200:
-    #         print("Function 'pg_execute' created successfully.")
-    #     else:
-    #         print(f"Error: {response.text}")
 
 def read_local_csv_to_supabase_storage():
     df = pd.read_csv('EQUITY_L.csv' , skiprows=1, header=None)
@@ -107,4 +102,4 @@ if __name__ == "__main__":
     #create_import_function()
     #print("test")
     #upload_data_through_rpc_call()
-    parse_xml_config_and_create_table(xml_file_path)
+    parse_xml_config_and_create_table(xml_file_path_1)
