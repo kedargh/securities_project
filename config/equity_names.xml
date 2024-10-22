@@ -2,7 +2,7 @@
 <configuration>
     <database>
         <url>https://xsujstzsbguabmmfdoww.supabase.co</url>
-        <api_key>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzdWpzdHpzYmd1YWJtbWZkb3d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgyODg5MzEsImV4cCI6MjA0Mzg2NDkzMX0.yl_1pRMfQtCcXASs9KVt2snmHkiamGXML24VnLeXKaI</api_key>
+        <api_key>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzdWpzdHpzYmd1YWJtbWZkb3d3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyODI4ODkzMSwiZXhwIjoyMDQzODY0OTMxfQ.judYOQUAgL_kxcvZCoGGHdRhj2tk-LKeJp_jeHnYmgU</api_key>
         <bucket>equity_data_bucket</bucket>
     </database>
     <local_csv_path>/home/kedar/securities_project/data/EQUITY_L.csv</local_csv_path>

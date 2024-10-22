@@ -6,6 +6,12 @@ import xml.etree.ElementTree as ET
 
 xml_file_path_1 = "/home/kedar/securities_project/config/equity_names.xml"
 #xml_file_path_2 = 
+def upload_file_to_supabase_storage(file,bucket):
+    with open(f'{file}', 'rb') as f:
+        res = supabase.storage.from_bucket(f'{bucket}').upload(f'{file}', f)
+        print("Stored procedure uploaded successfully !!!")
+
+
 def parse_xml_config_and_create_table(xml_file_path):
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
@@ -28,17 +34,14 @@ def parse_xml_config_and_create_table(xml_file_path):
 
     create_table_sql = f"CREATE TABLE IF NOT EXISTS {table_name} ("
     for field_name , field_type in fields:
-        if " " in field_name:
-            field_name = f"\"{field_name}\""
+        field_name = f"\"{field_name}\""
         create_table_sql += f"    {field_name} {field_type},\n"
     create_table_sql = create_table_sql.rstrip(',\n') + "\n);"  
-    print(create_table_sql)
+    with open("/home/kedar/securities_project/sql_files/EQUITY_INFO.sql", "w") as sql_file:
+        sql_file.write(create_table_sql)
     try:
-        response = supabase.rpc("pg_execute", {"query": create_table_sql}).execute()
-        if response.status_code == 200:
-            print("TABLE CONSTRUCTION DONE")
-        else:
-            print(f"Error: {response.text}")
+        response = supabase.table("EQUITY_PRICES").select("*").execute()
+        print(response)
     except Exception as e:
         print(f"Failed to create table: {e}")
 
@@ -48,7 +51,7 @@ def parse_xml_config_and_create_table(xml_file_path):
 #-------------------------------------------------------------------------------------------
 
 def read_local_csv_to_supabase_storage():
-    df = pd.read_csv('EQUITY_L.csv' , skiprows=1, header=None)
+    df = pd.read_csv('/home/kedar/securities_project/data/EQUITY_L.csv' , skiprows=1, header=None)
     df.columns = ['SYMBOL', 'NAME OF COMPANY', 'SERIES', 'DATE OF LISTING', 'PAID UP VALUE', 'MARKET LOT', 'ISIN NUMBER', 'FACE VALUE']
     tickers = df['SYMBOL'].tolist()
     csv_file_path = "/home/kedar/securities_project/data/equity_data.csv"
@@ -83,23 +86,25 @@ def read_local_csv_to_supabase_storage():
         print("File uploaded to Supabase storage")
 
 
-def create_import_function():
-    with open('/home/kedar/securities_project/sql_files', 'rb') as f:
-        res = supabase.storage.from_('equity_data_bucket').upload('/home/kedar/securities_project/sql_files', f)
+def upload_file_to_supabase_storage(file,bucket):
+    with open(f'{file}', 'rb') as f:
+        res = supabase.storage.from_bucket(f'{bucket}').upload(f'{file}', f)
         print("Stored procedure uploaded successfully !!!")
 
 
-def upload_data_through_rpc_call():
-    response = supabase.rpc('import_equity_prices_from_csv').execute()
-    print("EXECUTED STORED PROCEDURE !!")
-    if response.status_code == 200:
-        print("Stored procedure executed successfully.")
-    else:
-        print(f"Error executing stored procedure: {response.json()}")
+# def upload_data_through_rpc_call():
+#     response = supabase.rpc('import_equity_prices_from_csv').execute()
+#     print("EXECUTED STORED PROCEDURE !!")
+#     if response.status_code == 200:
+#         print("Stored procedure executed successfully.")
+#     else:
+#         print(f"Error executing stored procedure: {response.json()}")
 
 
 if __name__ == "__main__":
+        
     #create_import_function()
     #print("test")
     #upload_data_through_rpc_call()
+    upload_file_to_supabase_storage('/home/kedar/securities_project/sql_files/EQUITY_INFO.sql' , 'equity_data_bucket')
     parse_xml_config_and_create_table(xml_file_path_1)

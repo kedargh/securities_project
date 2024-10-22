@@ -10,14 +10,15 @@
     <table_config>
         <name>EQUITY_INFO</name>
         <fields>
-            <field name="SYMBOL" type="varchar" primary_key="true" />
-            <field name="NAME OF COMPANY" type="varchar" />
-            <field name="SERIES" type="varchar" />
-            <field name="DATE OF LISTING" type="date" />
-            <field name="PAID UP VALUE" type="float8" />
-            <field name="MARKET LOT" type="int8" />
-            <field name="ISIN NUMBER" type="varchar" primary_key="true" />
-            <field name="FACE VALUE" type="int8" />
+            <field name="Date" type="date" primary_key="true" />
+            <field name="ticker" type="varchar" primary_key="true" />
+            <field name="Open" type="float8" />
+            <field name="High" type="float8" />
+            <field name="Low" type="float8" />
+            <field name="Close" type="float8" />
+            <field name="Volume" type="int8"  />
+            <field name="Dividends" type="float8" />
+            <field name="Stock Splits" type="float4" />
         </fields>
     </table_config>
 
