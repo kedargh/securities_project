@@ -8,7 +8,8 @@
     <local_csv_path>/home/kedar/securities_project/data/equity_data.csv</local_csv_path>
 
     <table_config>
-        <name>EQUITY_INFO</name>
+        <name>EQUITY_PRICES</name>
+        <project_bucket>equity_data_bucket</project_bucket>
         <fields>
             <field name="Date" type="date" primary_key="true" />
             <field name="ticker" type="varchar" primary_key="true" />

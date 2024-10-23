@@ -9,6 +9,7 @@
 
     <table_config>
         <name>EQUITY_INFO</name>
+        <project_bucket>equity_data_bucket</project_bucket>
         <fields>
             <field name="SYMBOL" type="varchar" primary_key="true" />
             <field name="NAME OF COMPANY" type="varchar" />
