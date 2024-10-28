@@ -4,31 +4,38 @@ import pandas as pd
 import requests
 import xml.etree.ElementTree as ET
 import os
-xml_file_path_1 = "/home/kedar/securities_project/config/equity_names.xml"
-xml_file_path_2 = "/home/kedar/securities_project/config/equity_prices.xml"
+import psycopg2
+xml_file_path_1 = "/home/kedar/securities_project/securities_project/config/equity_names.xml"
+xml_file_path_2 = "/home/kedar/securities_project/securities_project/config/equity_prices.xml"
+user = "postgres.xsujstzsbguabmmfdoww"
+
  
+def establish_connection(SUPABASE_URL , SUPABASE_DB , SUPABASE_USER , SUPABASE_PASSWORD , PORT):
+        CONNECTION = psycopg2.connect(host = SUPABASE_URL, dbname = SUPABASE_DB, user = SUPABASE_USER, password = SUPABASE_PASSWORD , sslmode = "require") 
+        CURSOR = CONNECTION.cursor()
+        return CURSOR,CONNECTION  
 
-def execute_sql_commands(sql_commands: str):
-    commands = sql_commands.split(';')
-    for command in commands:
-        command = command.strip()
-        if command: 
-            response = supabase.rpc('execute_sql', {'sql': command}).execute()
-            if response.error:
-                print(f"Error executing command: {response.error}")
-            else:
-                print(f"Command executed successfully: {command}")
-
+def execute_any_query(query , SUPABASE_URL , SUPABASE_DB , SUPABASE_USER , SUPABASE_PASSWORD , PORT):
+    try:
+        CURSOR,CONNECTION = establish_connection(SUPABASE_URL , SUPABASE_DB , SUPABASE_USER , SUPABASE_PASSWORD , PORT)  
+        CURSOR.execute(query)
+        CONNECTION.commit()
+    except Exception as e:
+        print("ERROR : " , e)
+    finally:
+        if CURSOR:
+            CURSOR.close()
 
 def parse_xml_config_and_create_table(xml_file_path):
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
-    db_url = root.find("./database/url").text
-    api_key = root.find("./database/api_key").text
+    db_url , api_key = create_supabase_client(xml_file_path)
+    create_supabase_client(xml_file_path)
     local_csv_path = root.find("./local_csv_path").text
     table_name = root.find("./table_config/name").text
     bucket = root.find("./table_config/project_bucket").text
     fields = []
+    CURSOR = establish_connection(db_url , )
     for field in root.findall("./table_config/fields/field"):
         field_name = field.attrib['name']
         field_type = field.attrib['type']
@@ -39,8 +46,6 @@ def parse_xml_config_and_create_table(xml_file_path):
     print(table_name)
     print(fields)
     print(bucket)
-    supabase: Client = create_client(db_url, api_key)
-    print("CLIENT SUCCESSFULLY CREATED")
 
     create_table_sql = f"CREATE TABLE IF NOT EXISTS {table_name} ("
     for field_name , field_type in fields:
@@ -48,22 +53,16 @@ def parse_xml_config_and_create_table(xml_file_path):
         create_table_sql += f"    {field_name} {field_type},\n"
     create_table_sql = create_table_sql.rstrip(',\n') + "\n);"  
     print(create_table_sql)
+
+
 #---------------------------------------------------------------------------------------------------
-    with open(f"/home/kedar/securities_project/sql_files/{table_name}.sql", "w") as sql_file:
+    with open(f"/home/kedar/securities_project/securities_project/sql_files/{table_name}.sql", "w") as sql_file:
         sql_file.write(create_table_sql)
         print("WRITTEN QUERY TO FILE !!!")
-    with open(f"/home/kedar/securities_project/sql_files/{table_name}.sql", 'rb') as upload_file:
+    with open(f"/home/kedar/securities_project/securities_project/sql_files/{table_name}.sql", 'rb') as upload_file:
         file_name = os.path.basename(upload_file.name)
         res = supabase.storage.from_('equity_data_bucket').upload(file = upload_file,path=f"create_table_files/{file_name}", file_options={"upsert" : "true"})
         print("File uploaded to Supabase storage")
-
-    response = supabase.rpc('execute_sql', {'sql': command}).execute()
-    if response.error:
-        print(f"Error executing command: {response.error}")
-    else:
-        print(f"Command executed successfully: {command}")
-
-    return db_url, api_key, local_csv_path, table_name, fields
 
 #-------------------------------------------------------------------------------------------
 
@@ -104,7 +103,9 @@ def read_local_csv_to_supabase_storage():
         print("File uploaded to Supabase storage")
 
 
-def upload_file_to_supabase_storage(file,bucket):
+def upload_file_to_supabase_storage(xml_file_path,file,bucket):
+    db_url , api_key = create_supabase_client(xml_file_path)
+    supabase: Client = create_client(db_url,api_key)
     with open(f'{file}', 'rb') as f:
         res = supabase.storage.from_bucket(f'{bucket}').upload(f'{file}', f)
         print("Stored procedure uploaded successfully !!!")
@@ -121,6 +122,7 @@ def upload_file_to_supabase_storage(file,bucket):
 
 if __name__ == "__main__":
     #upload_file_to_supabase_storage('/home/kedar/securities_project/sql_files/EQUITY_INFO.sql', 'equity_data_bucket')
-    #parse_xml_config_and_create_table(xml_file_path_1)
-    #parse_xml_config_and_create_table(xml_file_path_2)
-    read_local_csv_to_supabase_storage()
+    # parse_xml_config_and_create_table(xml_file_path_1)
+    # parse_xml_config_and_create_table(xml_file_path_2)
+    execute_any_query("CREATE TABLE TABLE_1 (column_1 varchar);" ,"aws-0-ap-south-1.pooler.supabase.com" , "postgres" , "postgres.xsujstzsbguabmmfdoww" , "ebmYiNty82GkYTBL" , 5432)
+    #read_local_csv_to_supabase_storage()

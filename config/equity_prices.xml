@@ -4,6 +4,8 @@
         <url>https://xsujstzsbguabmmfdoww.supabase.co</url>
         <api_key>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzdWpzdHpzYmd1YWJtbWZkb3d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgyODg5MzEsImV4cCI6MjA0Mzg2NDkzMX0.yl_1pRMfQtCcXASs9KVt2snmHkiamGXML24VnLeXKaI</api_key>
         <bucket>equity_data_bucket</bucket>
+        <user>postgres.xsujstzsbguabmmfdoww</user>
+        <password></password>
     </database>
     <local_csv_path>/home/kedar/securities_project/data/equity_data.csv</local_csv_path>
 
