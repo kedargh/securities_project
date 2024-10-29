@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <database>
-        <url>https://xsujstzsbguabmmfdoww.supabase.co</url>
+        <db_url>https://xsujstzsbguabmmfdoww.supabase.co</db_url>
         <api_key>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzdWpzdHpzYmd1YWJtbWZkb3d3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyODI4ODkzMSwiZXhwIjoyMDQzODY0OTMxfQ.judYOQUAgL_kxcvZCoGGHdRhj2tk-LKeJp_jeHnYmgU</api_key>
         <bucket>equity_data_bucket</bucket>
+        <db_name>postgres</db_name>
+        <host>aws-0-ap-south-1.pooler.supabase.com</host>
         <user>postgres.xsujstzsbguabmmfdoww</user>
-        <password></password>
+        <password>ebmYiNty82GkYTBL</password>
+        <port>5432</port>
     </database>
-    <local_csv_path>/home/kedar/securities_project/data/EQUITY_L.csv</local_csv_path>
+    <local_csv_path>/home/kedar/securities_project/securities_project/data/EQUITY_L.csv</local_csv_path>
 
     <table_config>
-        <name>EQUITY_INFO</name>
+        <name>equity_info</name>
         <project_bucket>equity_data_bucket</project_bucket>
         <fields>
             <field name="SYMBOL" type="varchar" primary_key="true" />

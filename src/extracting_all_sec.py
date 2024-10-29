@@ -9,13 +9,22 @@ xml_file_path_1 = "/home/kedar/securities_project/securities_project/config/equi
 xml_file_path_2 = "/home/kedar/securities_project/securities_project/config/equity_prices.xml"
 user = "postgres.xsujstzsbguabmmfdoww"
 
- 
+
+def create_supabase_client(xml_file_path):
+    tree = ET.parse(xml_file_path)
+    root = tree.getroot()
+    db_url = root.find("./database/db_url").text
+    api_key =  root.find("./database/api_key").text
+    supabase: Client = create_client(db_url , api_key)
+    return(supabase)
+
 def establish_connection(SUPABASE_URL , SUPABASE_DB , SUPABASE_USER , SUPABASE_PASSWORD , PORT):
         CONNECTION = psycopg2.connect(host = SUPABASE_URL, dbname = SUPABASE_DB, user = SUPABASE_USER, password = SUPABASE_PASSWORD , sslmode = "require") 
         CURSOR = CONNECTION.cursor()
         return CURSOR,CONNECTION  
 
 def execute_any_query(query , SUPABASE_URL , SUPABASE_DB , SUPABASE_USER , SUPABASE_PASSWORD , PORT):
+    CURSOR, CONNECTION = None, None
     try:
         CURSOR,CONNECTION = establish_connection(SUPABASE_URL , SUPABASE_DB , SUPABASE_USER , SUPABASE_PASSWORD , PORT)  
         CURSOR.execute(query)
@@ -27,15 +36,21 @@ def execute_any_query(query , SUPABASE_URL , SUPABASE_DB , SUPABASE_USER , SUPAB
             CURSOR.close()
 
 def parse_xml_config_and_create_table(xml_file_path):
+    supabase= create_supabase_client(xml_file_path)
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
-    db_url , api_key = create_supabase_client(xml_file_path)
-    create_supabase_client(xml_file_path)
+    db_url = root.find("./database/db_url").text
+    api_key = root.find("./database/api_key").text
+    db_name = root.find("./database/db_name").text
     local_csv_path = root.find("./local_csv_path").text
     table_name = root.find("./table_config/name").text
     bucket = root.find("./table_config/project_bucket").text
+    supabase_url = root.find("./database/db_url").text
+    user = root.find("./database/user").text
+    password = root.find("./database/password").text
+    port = int(root.find("./database/port").text)
+    host = root.find("./database/host").text
     fields = []
-    CURSOR = establish_connection(db_url , )
     for field in root.findall("./table_config/fields/field"):
         field_name = field.attrib['name']
         field_type = field.attrib['type']
@@ -54,11 +69,13 @@ def parse_xml_config_and_create_table(xml_file_path):
     create_table_sql = create_table_sql.rstrip(',\n') + "\n);"  
     print(create_table_sql)
 
-
 #---------------------------------------------------------------------------------------------------
     with open(f"/home/kedar/securities_project/securities_project/sql_files/{table_name}.sql", "w") as sql_file:
         sql_file.write(create_table_sql)
         print("WRITTEN QUERY TO FILE !!!")
+    
+    execute_any_query(create_table_sql , host , db_name , user , password , port)
+
     with open(f"/home/kedar/securities_project/securities_project/sql_files/{table_name}.sql", 'rb') as upload_file:
         file_name = os.path.basename(upload_file.name)
         res = supabase.storage.from_('equity_data_bucket').upload(file = upload_file,path=f"create_table_files/{file_name}", file_options={"upsert" : "true"})
@@ -67,10 +84,10 @@ def parse_xml_config_and_create_table(xml_file_path):
 #-------------------------------------------------------------------------------------------
 
 def read_local_csv_to_supabase_storage():
-    df = pd.read_csv('/home/kedar/securities_project/data/EQUITY_L.csv' , skiprows=1, header=None)
+    df = pd.read_csv('/home/kedar/securities_project/securities_project/data/EQUITY_L.csv' , skiprows=1, header=None)
     df.columns = ['SYMBOL', 'NAME OF COMPANY', 'SERIES', 'DATE OF LISTING', 'PAID UP VALUE', 'MARKET LOT', 'ISIN NUMBER', 'FACE VALUE']
     tickers = df['SYMBOL'].tolist()
-    csv_file_path = "/home/kedar/securities_project/data/equity_data.csv"
+    csv_file_path = "/home/kedar/securities_project/securities_project/data/equity_data.csv"
 
 
     print(tickers)
@@ -103,26 +120,33 @@ def read_local_csv_to_supabase_storage():
         print("File uploaded to Supabase storage")
 
 
-def upload_file_to_supabase_storage(xml_file_path,file,bucket):
-    db_url , api_key = create_supabase_client(xml_file_path)
+def bulk_upload(xml_file_path):
+    tree = ET.parse(xml_file_path)
+    root = tree.getroot()
+    db_url = root.find("./database/db_url").text
+    api_key = root.find("./database/api_key").text
+    file_path = root.find("./local_csv_path").text
+    bucket = root.find("./database/bucket").text
+    table_name = root.find("./table_config/name").text
+    print(table_name)
     supabase: Client = create_client(db_url,api_key)
-    with open(f'{file}', 'rb') as f:
-        res = supabase.storage.from_bucket(f'{bucket}').upload(f'{file}', f)
-        print("Stored procedure uploaded successfully !!!")
+    df = pd.read_csv(file_path)
+    data = df.to_dict(orient = "records")
+    cleaned_data = [{k.strip(): v for k, v in record.items()} for record in data]
+    print("CONVERTED TO RECORDS")
+    response = supabase.table(table_name).insert(cleaned_data).execute()
+    # if response.error:
+    #     print(response.error)
+    # else:
+    #     print("BULK UPLOAD ACCOMPLISHED",response.data)
 
-
-# def upload_data_through_rpc_call():
-#     response = supabase.rpc('import_equity_prices_from_csv').execute()
-#     print("EXECUTED STORED PROCEDURE !!")
-#     if response.status_code == 200:
-#         print("Stored procedure executed successfully.")
-#     else:
-#         print(f"Error executing stored procedure: {response.json()}")
 
 
 if __name__ == "__main__":
     #upload_file_to_supabase_storage('/home/kedar/securities_project/sql_files/EQUITY_INFO.sql', 'equity_data_bucket')
     # parse_xml_config_and_create_table(xml_file_path_1)
     # parse_xml_config_and_create_table(xml_file_path_2)
-    execute_any_query("CREATE TABLE TABLE_1 (column_1 varchar);" ,"aws-0-ap-south-1.pooler.supabase.com" , "postgres" , "postgres.xsujstzsbguabmmfdoww" , "ebmYiNty82GkYTBL" , 5432)
+    # bulk_upload(xml_file_path_1)
+    # bulk_upload(xml_file_path_2)
+    read_local_csv_to_supabase_storage()
     #read_local_csv_to_supabase_storage()
