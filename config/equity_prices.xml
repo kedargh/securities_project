@@ -17,7 +17,6 @@
         <project_bucket>equity_data_bucket</project_bucket>
         <fields>
             <field name="Date" type="date" primary_key="true" />
-            <field name="ticker" type="varchar" primary_key="true" />
             <field name="Open" type="float8" />
             <field name="High" type="float8" />
             <field name="Low" type="float8" />
@@ -25,6 +24,7 @@
             <field name="Volume" type="int8"  />
             <field name="Dividends" type="float8" />
             <field name="Stock Splits" type="float4" />
+            <field name="ticker" type="varchar" primary_key="true" />
         </fields>
     </table_config>
 

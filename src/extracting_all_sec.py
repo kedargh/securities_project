@@ -119,6 +119,15 @@ def read_local_csv_to_supabase_storage():
         res = supabase.storage.from_('equity_data_bucket').upload("/home/kedar/securities_project/data/equity_data.csv", f , {"upsert" : "true"})
         print("File uploaded to Supabase storage")
 
+def ensure_index(df):
+    if isinstance(df.index, pd.RangeIndex):
+        print("The DataFrame is using a default numeric index.")
+    else:
+        print("The DataFrame has a custom index.")
+        # If it has a custom index, reset it to a default numeric index
+        df.reset_index(drop=True, inplace=True)  # Drop the old index and reset
+
+    return df
 
 def bulk_upload(xml_file_path):
     tree = ET.parse(xml_file_path)
@@ -128,11 +137,12 @@ def bulk_upload(xml_file_path):
     file_path = root.find("./local_csv_path").text
     bucket = root.find("./database/bucket").text
     table_name = root.find("./table_config/name").text
-    print(table_name)
+    #print(table_name)
     supabase: Client = create_client(db_url,api_key)
     df = pd.read_csv(file_path)
-    data = df.to_dict(orient = "records")
-    cleaned_data = [{k.strip(): v for k, v in record.items()} for record in data]
+    print(df.head())
+    cleaned_data = [{k.strip(): v for k, v in record.items()} for record in df.to_dict(orient="records")]
+    print(cleaned_data)
     print("CONVERTED TO RECORDS")
     response = supabase.table(table_name).insert(cleaned_data).execute()
     # if response.error:
@@ -144,9 +154,9 @@ def bulk_upload(xml_file_path):
 
 if __name__ == "__main__":
     #upload_file_to_supabase_storage('/home/kedar/securities_project/sql_files/EQUITY_INFO.sql', 'equity_data_bucket')
-    # parse_xml_config_and_create_table(xml_file_path_1)
-    # parse_xml_config_and_create_table(xml_file_path_2)
-    # bulk_upload(xml_file_path_1)
-    # bulk_upload(xml_file_path_2)
-    read_local_csv_to_supabase_storage()
+    parse_xml_config_and_create_table(xml_file_path_1)
+    parse_xml_config_and_create_table(xml_file_path_2)
+    bulk_upload(xml_file_path_1)
+    bulk_upload(xml_file_path_2)
+    #read_local_csv_to_supabase_storage()
     #read_local_csv_to_supabase_storage()
