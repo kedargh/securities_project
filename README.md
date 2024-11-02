@@ -5,5 +5,5 @@ Project for Internship
 1) yfinance API
 2) XML files for config and creating tables
 
-## Tools used for scheduling - 
+## Tools used for scheduling and workflow management- 
 1) Apache Airflow
