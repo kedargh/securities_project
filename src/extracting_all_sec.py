@@ -136,8 +136,8 @@ def bulk_upload(xml_file_path):
         print("Error during upload:", e)
 
 if __name__ == "__main__":
-    # parse_xml_config_and_create_table(xml_file_path_1)
-    parse_xml_config_and_create_table(xml_file_path_2)
-    daily_series_data()
-    #bulk_upload(xml_file_path_1)
-    bulk_upload(xml_file_path_2)
+    parse_xml_config_and_create_table(xml_file_path_1)
+    #parse_xml_config_and_create_table(xml_file_path_2)
+    #daily_series_data()
+    bulk_upload(xml_file_path_1)
+    #bulk_upload(xml_file_path_2)
