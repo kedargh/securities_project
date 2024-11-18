@@ -56,9 +56,11 @@ def bulk_upload(xml_file_path):
     except Exception as e:
         print("Error during upload:", e)
 
-
-if __name__ == "__main__":
-    #parse_xml_config_and_create_table(xml_file_path_2)
-    #daily_series_data()
+def main():
     bulk_upload(xml_file_path_1)
     bulk_upload(xml_file_path_2)
+    
+# if __name__ == "__main__":
+#     #parse_xml_config_and_create_table(xml_file_path_2)
+#     #daily_series_data()
+#     main()

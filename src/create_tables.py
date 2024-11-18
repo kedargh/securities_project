@@ -84,7 +84,8 @@ def parse_xml_config_and_create_table(xml_file_path):
         res = supabase.storage.from_('equity_data_bucket').upload(file = upload_file,path=f"create_table_files/{file_name}", file_options={"upsert" : "true"})
         print("File uploaded to Supabase storage")
 
-
-if __name__ == "__main__":
+def main():
     parse_xml_config_and_create_table(xml_file_path_1)
     parse_xml_config_and_create_table(xml_file_path_2)
+# if __name__ == "__main__":
+#     main()

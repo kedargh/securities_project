@@ -70,5 +70,8 @@ def daily_series_data():
         res = supabase.storage.from_('equity_data_bucket').upload("/home/kedar/securities_project/data/equity_data.csv", f , {"upsert" : "true"})
         print("File uploaded to Supabase storage")
 
-if __name__ == "__main__":
+def main():
     daily_series_data()
+
+# if __name__ == "__main__":
+#     main()
