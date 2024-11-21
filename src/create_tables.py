@@ -55,10 +55,16 @@ def parse_xml_config_and_create_table(xml_file_path):
     port = int(root.find("./database/port").text)
     host = root.find("./database/host").text
     fields = []
+    primary_keys = []
     for field in root.findall("./table_config/fields/field"):
         field_name = field.attrib['name']
         field_type = field.attrib['type']
+        is_primary_key = field.attrib.get('primary_key', 'false').lower() == 'true'
+
         fields.append((field_name, field_type))
+        if is_primary_key:
+            primary_keys.append(f"\"{field_name}\"")
+
     print(db_url)
     print(api_key)
     print(local_csv_path)
@@ -70,6 +76,10 @@ def parse_xml_config_and_create_table(xml_file_path):
     for field_name , field_type in fields:
         field_name = f"\"{field_name}\""
         create_table_sql += f"    {field_name} {field_type},\n"
+    if primary_keys:
+        primary_keys_str = ", ".join(primary_keys)
+        create_table_sql += f"    PRIMARY KEY ({primary_keys_str}),\n"
+    
     create_table_sql = create_table_sql.rstrip(',\n') + "\n);"  
     print(create_table_sql)
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -87,5 +97,7 @@ def parse_xml_config_and_create_table(xml_file_path):
 def main():
     parse_xml_config_and_create_table(xml_file_path_1)
     parse_xml_config_and_create_table(xml_file_path_2)
-# if __name__ == "__main__":
-#     main()
+
+
+if __name__ == "__main__":
+    main()

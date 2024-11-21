@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS equity_prices (    "Date" date,
     "Volume" int8,
     "Dividends" float8,
     "Stock Splits" float4,
-    "ticker" varchar
+    "ticker" varchar,
+    PRIMARY KEY ("Date", "ticker")
 );

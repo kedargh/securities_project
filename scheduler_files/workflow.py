@@ -1,57 +1,47 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.exceptions import AirflowSkipException
-from airflow.decorators import task
-from datetime import datetime, timedelta
-import sys
-import os
-# Import the main functions from your Python scripts
-dag_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the current DAG file
-src_dir = '/home/kedar/securities_project/src'
+from datetime import datetime
+from datetime import timedelta
+import subprocess
 
-sys.path.append(src_dir)
-print(src_dir)
-from create_tables import main as create_tables_main
-from extract_data import main as extract_data_main
-from extracting_all_sec import main as extracting_all_sec_main
+def run_script_1():
+    subprocess.run(["python3", "/home/kedar/securities_project/securities_project/src/create_tables.py"], check=True)
 
-# Define the DAG
+def run_script_2():
+    subprocess.run(["python3" , "/home/kedar/securities_project/securities_project/src/extract_data_all_time.py"] , check=True)
+
+def run_script_3():
+    subprocess.run(["python3", "/home/kedar/securities_project/securities_project/src/bulk_upload.py"], check=True)
+
+
 default_args = {
     'owner': 'kedar',
-    'depends_on_past': False,
-    'start_date': datetime(2024, 11, 19),  # Set a suitable start date
     'retries': 3,
     'retry_delay': timedelta(minutes=5),
 }
 
 
 with DAG(
-    'python_scripts_execution',
+    'scripts_dag',
     default_args=default_args,
-    description='Execute Python scripts with main functions in sequence',
-    schedule='@daily',  # Manual execution
-    catchup=False,
+    description='A DAG to run 3 scripts',
+    schedule='@daily',  # Set your preferred schedule here
+    start_date=datetime(2024, 11, 18),  # Adjust to your start date
+    catchup=False,  # If you don't want to backfill runs
 ) as dag:
-    @task()
-    def check_if_already_run(**kwargs):
-        task_instance = kwargs['ti']
-        if task_instance.previous_ti and task_instance.previous_ti.state == 'success':
-            raise AirflowSkipException("Task has already run successfully. Skipping execution.")
 
-    # Task to create tables
-    @task()
-    def create_tables_task():
-        create_tables_main()
+    task1 = PythonOperator(
+        task_id='create_tables',
+        python_callable=run_script_1,
+    )
 
-    # Task to extract Yahoo Finance data
-    @task()
-    def extraction_yf_task():
-        extract_data_main()
+    task2 = PythonOperator(
+        task_id='extract_all_time_data',
+        python_callable=run_script_2,
+    )
 
-    # Task for bulk upload
-    @task()
-    def bulk_upload_task():
-        extracting_all_sec_main()
-
-    # Define the execution order
-    check_if_already_run() >> create_tables_task() >> extraction_yf_task() >> bulk_upload_task()
+    task3 = PythonOperator(
+        task_id='bulk_upload',
+        python_callable=run_script_3,
+    )
+    task1 >> task2 >> task3 

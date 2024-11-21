@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS equity_info (    "SYMBOL" varchar,
     "PAID UP VALUE" float8,
     "MARKET LOT" int8,
     "ISIN NUMBER" varchar,
-    "FACE VALUE" int8
+    "FACE VALUE" int8,
+    PRIMARY KEY ("SYMBOL", "ISIN NUMBER")
 );
