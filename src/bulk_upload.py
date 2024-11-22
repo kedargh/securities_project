@@ -49,15 +49,32 @@ def bulk_upload(xml_file_path):
     df = pd.read_csv(file_path)
     #print(df.head())
     cleaned_data = [{k.strip(): v for k, v in record.items()} for record in df.to_dict(orient="records")]
-    print(cleaned_data[1])
-    print("CONVERTED TO RECORDS")
-    try:
-        response = supabase.table(table_name).insert(cleaned_data).execute()
-    except Exception as e:
-        print("Error during upload:", e)
+    batch_size = 100
+    batch = []
+    for i, record in enumerate(cleaned_data):
+        batch.append(record)
+        if len(batch) >= batch_size:
+            try:
+                response = supabase.table(table_name).insert(batch).execute()
+                print(f"Successfully uploaded batch of {batch_size} rows.")
+            except Exception as e:
+                print("Error during upload:", e)
+            batch = []
+    if batch:
+        try:
+            response = supabase.table(table_name).insert(batch).execute()
+            print(f"Successfully uploaded the remaining {len(batch)} rows.")
+        except Exception as e:
+            print("Error during upload:", e)
+    # print(cleaned_data[1])
+    # print("CONVERTED TO RECORDS")
+    # try:
+    #     response = supabase.table(table_name).insert(cleaned_data).execute()
+    # except Exception as e:
+    #     print("Error during upload:", e)
 
 def main():
-    bulk_upload(xml_file_path_1)
+    # bulk_upload(xml_file_path_1)
     bulk_upload(xml_file_path_2)
     
 if __name__ == "__main__":

@@ -73,5 +73,5 @@ def daily_series_data():
 def main():
     daily_series_data()
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

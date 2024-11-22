@@ -5,13 +5,11 @@ from datetime import timedelta
 import subprocess
 
 def run_script_1():
-    subprocess.run(["python3", "/home/kedar/securities_project/securities_project/src/create_tables.py"], check=True)
+    subprocess.run(["python3", "/home/kedar/securities_project/securities_project/src/extract_data_daily.py"], check=True)
 
 def run_script_2():
-    subprocess.run(["python3" , "/home/kedar/securities_project/securities_project/src/extract_data_all_time.py"] , check=True)
+    subprocess.run(["python3" , "/home/kedar/securities_project/securities_project/src/daily_data_upload.py"] , check=True)
 
-def run_script_3():
-    subprocess.run(["python3", "/home/kedar/securities_project/securities_project/src/bulk_upload.py"], check=True)
 
 
 default_args = {
@@ -25,9 +23,9 @@ with DAG(
     'scripts_dag',
     default_args=default_args,
     description='A DAG to run 3 scripts',
-    schedule='@daily',  # Set your preferred schedule here
-    start_date=datetime(2024, 11, 18),  # Adjust to your start date
-    catchup=False,  # If you don't want to backfill runs
+    schedule='@daily',
+    start_date=datetime(2024, 11, 18),
+    catchup=False,
 ) as dag:
 
     task1 = PythonOperator(
@@ -40,8 +38,5 @@ with DAG(
         python_callable=run_script_2,
     )
 
-    task3 = PythonOperator(
-        task_id='bulk_upload',
-        python_callable=run_script_3,
-    )
-    task1 >> task2 >> task3 
+
+    task1 >> task2  

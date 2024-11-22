@@ -11,7 +11,7 @@
         <port>5432</port>
     </database>
     <local_csv_path>/home/kedar/securities_project/securities_project/data/equity_data.csv</local_csv_path>
-
+    <local_csv_path_daily>/home/kedar/securities_project/securities_project/data/daily_data.csv</local_csv_path_daily>
     <table_config>
         <name>equity_prices</name>
         <project_bucket>equity_data_bucket</project_bucket>
