@@ -67,7 +67,7 @@ def daily_series_data():
     print(no_data_tickers)
 
     with open(csv_file_path, 'rb') as f:
-        res = supabase.storage.from_('equity_data_bucket').upload("/home/kedar/securities_project/data/equity_data.csv", f , {"upsert" : "true"})
+        res = supabase.storage.from_('equity_data_bucket').upload("/home/kedar/securities_project/data/daily_data/daily_data.csv", f , {"upsert" : "true"})
         print("File uploaded to Supabase storage")
 
 def main():

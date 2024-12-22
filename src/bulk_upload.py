@@ -9,7 +9,6 @@ xml_file_path_1 = "/home/kedar/securities_project/securities_project/config/equi
 xml_file_path_2 = "/home/kedar/securities_project/securities_project/config/equity_prices.xml"
 user = "postgres.xsujstzsbguabmmfdoww"
 
-
 def create_supabase_client(xml_file_path):
     tree = ET.parse(xml_file_path)
     root = tree.getroot()

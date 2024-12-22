@@ -5,11 +5,14 @@ import requests
 import xml.etree.ElementTree as ET
 import os
 import psycopg2
+from datetime import datetime
 xml_file_path_1 = "/home/kedar/securities_project/securities_project/config/equity_names.xml"
 xml_file_path_2 = "/home/kedar/securities_project/securities_project/config/equity_prices.xml"
 user = "postgres.xsujstzsbguabmmfdoww"
 
-
+#---------------------TO BE USED FOR DATE FILENAMING----------------------------------------------------------------------
+universal_path = "/home/kedar/securities_project/data/all_time_data/equity_data"
+#-------------------------------------------------------------------------------------------------------------------------
 def create_supabase_client(xml_file_path):
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
@@ -34,6 +37,7 @@ def execute_any_query(query , SUPABASE_URL , SUPABASE_DB , SUPABASE_USER , SUPAB
     finally:
         if CURSOR:
             CURSOR.close()
+
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -67,8 +71,12 @@ def daily_series_data():
     print(no_data_tickers)
 
     with open(csv_file_path, 'rb') as f:
-        res = supabase.storage.from_('equity_data_bucket').upload("/home/kedar/securities_project/data/equity_data.csv", f , {"upsert" : "true"})
+        current_date = datetime.now().date()
+        formatted_path = f"{universal_path}/{current_date}.csv"
+        res = supabase.storage.from_('equity_data_bucket').upload(formatted_path, f , {"upsert" : "true"})
         print("File uploaded to Supabase storage")
+
+
 
 def main():
     daily_series_data()
