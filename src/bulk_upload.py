@@ -73,7 +73,7 @@ def bulk_upload(xml_file_path):
     #     print("Error during upload:", e)
 
 def main():
-    # bulk_upload(xml_file_path_1)
+    bulk_upload(xml_file_path_1)
     bulk_upload(xml_file_path_2)
     
 if __name__ == "__main__":
