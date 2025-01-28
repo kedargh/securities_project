@@ -20,7 +20,7 @@ from news_fetcher import fetch_news_for_ticker
 #             writer.writerow([headline])
 
 
-async def headlines_fetcher(stock : str)->list:         #####TOOL 1####
+async def headlines_fetcher(stock : str , number_of_news: int)->list:         #####TOOL 1####
     """Fetch the list of news for the given stock ticker"""
     google_news = GNews(
     language='en',
@@ -28,7 +28,7 @@ async def headlines_fetcher(stock : str)->list:         #####TOOL 1####
     period='1d',
     start_date=None,
     end_date=None,
-    max_results=10,)
+    max_results=number_of_news,)
     ####GOOGLE NEWS OBJECT#####
     news = google_news.get_news(f"{stock}")
     headlines = []
@@ -43,7 +43,7 @@ async def headlines_fetcher(stock : str)->list:         #####TOOL 1####
 
 async def sentiment_classifier(text: str) -> str:   #####TOOL 2#####
     """Derive sentiment for the given text."""
-    model_path = "./finbert-finetuned"
+    model_path = "yiyanghkust/finbert-tone"
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     model = AutoModelForSequenceClassification.from_pretrained(model_path)
 
@@ -54,12 +54,18 @@ async def sentiment_classifier(text: str) -> str:   #####TOOL 2#####
         predictions = torch.softmax(outputs.logits, dim=1)
         label_index = torch.argmax(predictions).item()
 
-    labels = ["Neutral", "Negative", "Positive"]
+    labels = ["Neutral", "Positive", "Negative"]
     sentiment = labels[label_index]
     print(sentiment)
     return sentiment
 
-
+async def sentiment_classifier_loop(list_of_news: list) -> list:
+    """Run this classifier loop on a list of news for the stock"""
+    list_of_classified_sentiments = []
+    for news in list_of_news:
+        list_of_classified_sentiments.append(sentiment_classifier(news))
+    print(sentiment_classifier)
+    return list_of_classified_sentiments
 
 model_client = OpenAIChatCompletionClient(
     model="gpt-4o-mini",
@@ -69,12 +75,12 @@ model_client = OpenAIChatCompletionClient(
 agent = AssistantAgent(
     name="assistant",
     model_client=model_client,
-    tools=[headlines_fetcher , sentiment_classifier],
+    tools=[headlines_fetcher,sentiment_classifier_loop,sentiment_classifier], #headlines_fetcher , , sentiment_classifier_loop
     system_message="You are a helpful assistant. Use tools when needed.",
 )
 
 async def run_agent():
-    user_message = "Perform sentiment analysis for Infosys. The (headlines_fetcher) function returns the list of all the headlines of the company ticker (INFY). For each element of the list perform sentiment analysis using the (sentiment_classifier) function."
+    user_message = "Perform sentiment analysis for TCS. The (headlines_fetcher) function returns the list of a headline of the company ticker (TCS). For the list of headline fetched by the (headlines_fetcher) function perform sentiment analysis using the (sentiment_classifier) function"#"Perform sentiment analysis for TCS. The (headlines_fetcher) function returns the list of a headline of the company ticker (TCS). For the list of headline fetched by the (headlines_fetcher) function perform sentiment analysis using the (sentiment_classifier) function"
     response = await agent.on_messages(
         messages=[TextMessage(content=user_message, source="user")],
         cancellation_token=CancellationToken()
