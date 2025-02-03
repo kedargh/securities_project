@@ -16,6 +16,8 @@ import openai
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import torch
 from news_fetcher import fetch_news_for_ticker
+import asyncio
+from rich.console import Console
 #################MESSAGE FORMATS FOR AGENTS#############################################
 class NewsResponse(BaseModel):
     stock: str
@@ -59,9 +61,10 @@ model = AutoModelForSequenceClassification.from_pretrained(model_path)
 model.eval()
 
 
-async def sentiment_classifier_loop(stock: str, list_of_news: List[str]) -> SentimentResponse:
+async def sentiment_classifier_loop(news_response_object: NewsResponse) -> SentimentResponse:
     """Classify sentiment for multiple news articles asynchronously and return structured response."""
-    async def sentiment_classifier(text: str) -> Dict[str,str]:
+    headlines = news_response_object.headlines
+    async def sentiment_classifier(headlines: List) -> Dict[str,str]:
         """Single news classification"""
         inputs = tokenizer(news, return_tensors="pt", truncation=True, padding=True)
 
@@ -112,16 +115,20 @@ sentiment_classifier_agent = AssistantAgent(
     system_message="You are a helpful assistant. Use tools when needed.",
 )
 
-prompt_agent = UserProxyAgent(
-    name="PromptAgent",
-    description='A question asking agent.',
-
-)
-
+user_agent = UserProxyAgent(
+    name="AskerAgent",
+    description="A human user",
+    human_input_mode="ALWAYS"
+    )
 ################################################################################################################
-async def main():
-    team = RoundRobinGroupChat([supervision_agent, news_agent , sentiment_classifier_agent], termination_condition=text_termination)
-    result = await team.run(task="Perform sentiment analysis for Infosys.")
-    print(result)
+# async def main():
 
-asyncio.run(main())
+team = RoundRobinGroupChat([news_agent , sentiment_classifier_agent , user_agent], max_turns=3)
+async def run_chat():
+    stream = team.run_stream(task="Perform sentiment analysis for Infosys.")
+
+    console = Console()
+    async for result in stream:
+        console.print(result)
+
+asyncio.run(run_chat())
