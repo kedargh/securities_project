@@ -80,24 +80,7 @@ async def sentiment_classifier_loop(news_response_object: NewsResponse) -> Senti
 
     return SentimentResponse(stock=stock , results=results)
 
-# async def run_agent():
-#     user_message = "Fetch 10 headlines for TCS using the headlines_fetcher tool, then perform sentiment analysis on each headline using the sentiment_classifier_loop tool."
-#     response = await agent.on_messages(
-#     messages=[TextMessage(content=user_message, source="user")],
-#     cancellation_token=CancellationToken()
-#     )
-#     print(f"Assistant response: {response}")
 
-# async def assistant_run() -> None:
-#     user_message = (
-#         "Perform sentiment analysis for the following statement"
-#     )
-#     response = await agent.on_messages(
-#         [TextMessage(content=user_message, source="user")],
-#         cancellation_token=CancellationToken(),
-#     )
-#     print(response.inner_messages)
-#     print(response.chat_message)
 #####################AGENTS###################################################################
 news_agent = AssistantAgent(
     name="NewsFetcherAgent",
@@ -118,14 +101,14 @@ sentiment_classifier_agent = AssistantAgent(
 user_agent = UserProxyAgent(
     name="AskerAgent",
     description="A human user",
-    human_input_mode="ALWAYS"
+    # input_func=input("ENTER A PROMPT")
     )
 ################################################################################################################
 # async def main():
 
-team = RoundRobinGroupChat([news_agent , sentiment_classifier_agent , user_agent], max_turns=3)
+team = RoundRobinGroupChat([news_agent , sentiment_classifier_agent , user_agent], max_turns=3) #, termination_condition="DONE")
 async def run_chat():
-    stream = team.run_stream(task="Perform sentiment analysis for Infosys.")
+    stream = team.run_stream(task="""Perform sentiment analysis using the "news_agent" agent and the "sentiment_classifier_agent" agent for the first 10 market news for Infosys. Once done reply with "DONE" .""")
 
     console = Console()
     async for result in stream:
