@@ -5,6 +5,8 @@ Project for Internship
 1) yfinance API
 2) Supabase docker and API
 3) XML files for config and creating tables
+4) Autogen 0.4.5 for Agentic Workflows and dynamic function calls.
+5) ChatGPT 4o-mini for handling NLP prompts
 
 ## Tools used for scheduling and workflow management- 
 1) Apache Airflow
