@@ -27,6 +27,7 @@ class SentimentResponse(BaseModel):
     stock: str
     results: List[Dict[str, str]]
 
+
 ############################################################################################################################
 model_client = OpenAIChatCompletionClient(
     model="gpt-4o-mini",
@@ -85,8 +86,6 @@ async def sentiment_classifier_loop(news_response_object : NewsResponse) -> Sent
     return SentimentResponse(stock=news_response_object.stock , results=results)
 
 
-async def async_input_func(prompt: str, cancel_token=None) -> str:
-    return await asyncio.to_thread(input("Enter your question = "), prompt)
 #####################AGENTS###################################################################
 news_agent = AssistantAgent(
     name="NewsFetcherAgent",
@@ -107,14 +106,18 @@ sentiment_classifier_agent = AssistantAgent(
 user_agent = UserProxyAgent(
     name="AskerAgent",
     description="A human user",
-    input_func=async_input_func,
+    input_func=input,
     )
 ################################################################################################################
 # async def main():
 
-team = RoundRobinGroupChat([news_agent , sentiment_classifier_agent , user_agent], max_turns=3) #, termination_condition="DONE")
+team = RoundRobinGroupChat([user_agent, news_agent , sentiment_classifier_agent], max_turns=3) #, termination_condition="DONE")
+
+stream=team.run_stream(task="""Perform sentiment analysis for Tata Consultancy Services.""")
+
+
 async def run_chat():
-    stream = team.run_stream(task="""Perform sentiment analysis using the "news_agent" agent and the "sentiment_classifier_agent" agent for the first 10 market news for Divi's Laboratories. Once done reply with "DONE" .""")
+    stream = team.run_stream(task="""Perform sentiment analysis for Tata Consultancy Services.""")
 
     console = Console()
     async for result in stream:
