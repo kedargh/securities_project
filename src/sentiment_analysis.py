@@ -18,6 +18,11 @@ import torch
 from news_fetcher import fetch_news_for_ticker
 import asyncio
 from rich.console import Console
+########################################################################################
+
+#Things to add - 
+#1) FunctionTool for yfinance 25 different parameters
+#2) Magentic One Agent for Supervision and Moderator Agent 
 #################MESSAGE FORMATS FOR AGENTS#############################################
 class NewsResponse(BaseModel):
     stock: str
