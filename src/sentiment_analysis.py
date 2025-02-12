@@ -18,11 +18,8 @@ import torch
 from news_fetcher import fetch_news_for_ticker
 import asyncio
 from rich.console import Console
-########################################################################################
-
-#Things to add - 
-#1) FunctionTool for yfinance 25 different parameters
-#2) Magentic One Agent for Supervision and Moderator Agent 
+import yfinance as yf
+from autogen_agentchat.teams import MagenticOneGroupChat
 #################MESSAGE FORMATS FOR AGENTS#############################################
 class NewsResponse(BaseModel):
     stock: str
@@ -31,6 +28,11 @@ class NewsResponse(BaseModel):
 class SentimentResponse(BaseModel):
     stock: str
     results: List[Dict[str, str]]
+
+class StockInfo(BaseModel):  #####PYDANTIC FOR STOCK ATTRIBUTES######
+    stock: str
+    attributes: Dict
+
 
 
 ############################################################################################################################
@@ -91,7 +93,24 @@ async def sentiment_classifier_loop(news_response_object : NewsResponse) -> Sent
     return SentimentResponse(stock=news_response_object.stock , results=results)
 
 
+async def fetch_company_details(stock_name: str)-> StockInfo:
+    data = yf.Ticker(stock_name)
+    dict_for_analyst_price_targets = data.analyst_price_targets
+    dict_for_ticker_info = data.info
+    dict_for_analyst_price_targets.update(dict_for_ticker_info)
+
+    return StockInfo(stock=stock_name,attributes=dict_for_analyst_price_targets)
+
+
 #####################AGENTS###################################################################
+market_research_agent = AssistantAgent(
+    name="MarketResearchAgent",
+    description="Fetches the numerical characteristics and other attributes of a stock.",
+    model_client=model_client,
+    tools=[fetch_company_details],
+    system_message="You are a helpful assistant. Use tools when needed."
+)
+###IS IT RIGHT TO HAVE AN AGENT FOR NEWS SEPARATELY OR SHOULD IT BE GIVEN THE FUNCTIONTOOLS TO PERFORM NUMERICAL DATA RESEARCH???
 news_agent = AssistantAgent(
     name="NewsFetcherAgent",
     description="Fetches financial news for a given stock ticker.",
@@ -102,7 +121,7 @@ news_agent = AssistantAgent(
 )
 sentiment_classifier_agent = AssistantAgent(
     name="SentimentClassifierAgent",
-    description="Classifies sentiment for a list of news articles.",
+    description="Classifies sentiment for a list of news articles. Used for sentiment analysis.",
     model_client=model_client,
     tools=[sentiment_classifier_loop], #headlines_fetcher , , sentiment_classifier_loop
     system_message="You are a helpful assistant. Use tools when needed.",
@@ -116,13 +135,15 @@ user_agent = UserProxyAgent(
 ################################################################################################################
 # async def main():
 
-team = RoundRobinGroupChat([user_agent, news_agent , sentiment_classifier_agent], max_turns=3) #, termination_condition="DONE")
+team = MagenticOneGroupChat([user_agent, market_research_agent , news_agent , sentiment_classifier_agent], model_client=model_client) #, termination_condition="DONE")
 
-stream=team.run_stream(task="""Perform sentiment analysis for Tata Consultancy Services.""")
+#stream=team.run_stream(task="""Perform sentiment analysis for Tata Consultancy Services.""")
 
 
 async def run_chat():
-    stream = team.run_stream(task="""Perform sentiment analysis for Tata Consultancy Services.""")
+    task_to_perform = str(input("Enter the task to perform    :    "))
+
+    stream = team.run_stream(task=task_to_perform)
 
     console = Console()
     async for result in stream:
