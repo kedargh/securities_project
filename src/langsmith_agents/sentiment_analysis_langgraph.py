@@ -1,21 +1,45 @@
 from typing import Annotated
 from langgraph.graph import StateGraph
+from langgraph.graph import Graph
 from langgraph.graph.message import add_messages
 from typing_extensions import TypedDict
 import yfinance as yf
 from gnews import GNews
-class StockState(TypedDict): ######Pydantic Equivalent of StockInfo pydantic
-    stock: str 
-    attributes: dict
+from pydantic import BaseModel
+from typing import List, Dict
 
-
-class NewsState(TypedDict):
+class NewsState(BaseModel):
     stock: str
-    number_of_news: int
-    headlines: list[str]
+    headlines: List[str]
 
-graph_builder = StateGraph(StockState)
+class SentimentState(BaseModel):
+    stock: str
+    results: List[Dict[str, str]]
 
+class StockState(BaseModel):  #####PYDANTIC FOR STOCK ATTRIBUTES######
+    stock: str
+    attributes: Dict
+
+class PromptInputState:
+    prompt: str
+
+class DecisionState:
+    action_to_perform: str
+
+
+graph_builder = Graph()
+
+def input_prompt() -> PromptInputState : 
+    prompt_1 = str(input("What type of computation do you want to perform and on which stock? \n"))
+    return PromptInputState(prompt=prompt_1) 
+
+#####CONDITIONAL NODE#####
+def prompt_analysis(prompt_received:PromptInputState)->DecisionState:
+    if("sentiment analysis" in prompt_received.prompt):
+        return('sentiment_analysis')
+    elif("market research" in prompt_received.prompt):
+        return('market_research')
+    
 
 def fetch_company_details(stockstate_obj : StockState)-> StockState:
     stock_name = stockstate_obj.stock
