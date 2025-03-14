@@ -1,6 +1,7 @@
 # securities_project
 Project for Internship
-
+# GRAPH AND NODES INVOLVED - 
+![Workflow] (images/Screenshot from 2025-03-13 23-25-33.png)
 ## Tools being used for data extraction and cleansing - 
 1) yfinance API
 2) Supabase docker and API
