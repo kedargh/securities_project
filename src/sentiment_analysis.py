@@ -38,7 +38,7 @@ class StockInfo(BaseModel):  #####PYDANTIC FOR STOCK ATTRIBUTES######
 ############################################################################################################################
 model_client = OpenAIChatCompletionClient(
     model="gpt-4o-mini",
-    api_key="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",
+    api_key="",
 )
 ################################################################################################################################
 async def headlines_fetcher(stock : str , number_of_news: int)->NewsResponse:         #####TOOL 1####
