@@ -11,7 +11,7 @@ from mcp.server.fastmcp import FastMCP
 
 
 model_path = "yiyanghkust/finbert-tone"
-tokenizer = AutoTokenizer.from_pretrained(model_path)
+tokenizer = AutoTokenizer.from_pretrained(model_path,model_max_length=512)
 model = AutoModelForSequenceClassification.from_pretrained(model_path)
 model.eval()
 
@@ -89,7 +89,7 @@ async def news_classification_procedure(stock:str):
     news_object = news_object_class()
     print("Created News Object")
     news_object.stock = stock
-    news_object.news = news_fetcher(stock)
+    news_object.news = await news_fetcher(stock)
     
     classification_results = []
     for news in news_object.news:
@@ -127,7 +127,6 @@ async def yfinance_financial_data_tool(ticker:str):
         - capital_gains: Capital gains information.
         - cashflow: Cash flow statement data.
         - dividends: Dividend payment history.
-        - earnings: Earnings reports and financial performance.
         - earnings_history: Historical earnings data.
         - eps_revisions: Earnings per share (EPS) revision history.
         - eps_trend: Trends in earnings per share (EPS).
@@ -181,7 +180,6 @@ async def yfinance_financial_data_tool(ticker:str):
     capital_gains = {"capital_gains":data.capital_gains}
     cashflow={"cashflow":data.cashflow}
     dividends={"dividends":data.dividends}
-    earnings={"earnings":data.earnings}
     earnings_history={"earnings_history":data.earnings_history}
     eps_revisions={"eps_revisions":data.eps_revisions}
     eps_trend={"eps_trends":data.eps_trend}
@@ -223,7 +221,7 @@ async def yfinance_financial_data_tool(ticker:str):
     
     output_dictionary = {
     f"{ticker} INFORMATION": [
-        actions, analyst_pricing, balance_sheet, capital_gains, cashflow, dividends, earnings,
+        actions, analyst_pricing, balance_sheet, capital_gains, cashflow, dividends,
         earnings_history, eps_revisions, eps_trend, fast_info, financials, funds_data,
         growth_estimates, history_metadata, income_stmt, incomestmt, info, insider_purchases,
         insider_roster_holders, insider_transactions, institutional_holders, isin, major_holders,
@@ -336,5 +334,5 @@ def time_series_indicators(stock_ticker: str):
 if __name__ == "__main__":
     # Initialize and run the server
     print("SERVER STARTED")
-    mcp.run(transport='stdio')
+    mcp.run(transport='sse')
     
