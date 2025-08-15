@@ -11,7 +11,7 @@ Project for Internship
   - Calculating market stats - PE ratio, Liquidity, Volumes, 52-week statistics, EPS ratio, etc.
   - Fetching company data - Founders, history, exchange listed on, capital holdings, etc.
   - Alternate method is running a bash script scheduler in the operating system.
-  - Supabase used for data warehousing.
+  - Supabase used for data warehousing. (PostgreSQL)
  
 - The second part of the project is the sentiment analysis for any stock using FinBERT -
   - Uses locally install FinBERT for news classification.
