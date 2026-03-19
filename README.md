@@ -17,6 +17,11 @@
   - Categorizes the market news for that stock and lists all the hot tips from the market.
   - Gives a summary of classified news.
  
+- The third part of this project is to perform prompt based tool calling using Autogen and Anthropic MCP -
+  - Uses prewritten yfinance based tools for an MCP server.
+  - Server processes the prompt and facilitates tool calling using MCP tools.
+  - A summary is generated using Claude Sonnet in the terminal for the stock's analysis based on news, stock pricing and different other stock information.
+ 
 
 
 ## Tools being used for data extraction and cleansing - 
