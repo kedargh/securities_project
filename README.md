@@ -1,5 +1,5 @@
-# securities_project
-# GRAPH AND NODES INVOLVED - 
+# AGENTIC SECURITY ANALYSIS USING DIFFERENT AGENTIC FRAMEWORKS AND MODEL CONTEXT PROTOCOL
+# Graphs and nodes involed - 
 ![Workflow](images/workflow.png)
 
 # Project Description - 
@@ -35,6 +35,7 @@
 1) FinBERT
 2) Autogen Agentic Workflow
 3) Langgraph Nodes and Graphs
+4) Model Context Protocol based workflow
 
 ## Tools used for scheduling and workflow management- 
 1) Apache Airflow
