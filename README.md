@@ -1,5 +1,4 @@
 # securities_project
-Project for Internship
 # GRAPH AND NODES INVOLVED - 
 ![Workflow](images/workflow.png)
 
