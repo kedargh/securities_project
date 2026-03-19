@@ -33,9 +33,9 @@
 
 ## LLM operations and RAG - 
 1) FinBERT
-2) Autogen Agentic Workflow
-3) Langgraph Nodes and Graphs
-4) Model Context Protocol based workflow
+2) Autogen Agentic Workflow (**securities_project/src/autogen_branch**)
+3) Langgraph Nodes and Graphs(**securities_project/src/langsmith_agents**)
+4) Model Context Protocol based workflow(**securities_project/src/anthropic_branch**)
 
 ## Tools used for scheduling and workflow management- 
 1) Apache Airflow
